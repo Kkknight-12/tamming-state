@@ -84,7 +84,8 @@ function doAddTodo ( id, name ){
 };
 
 function doToggleTodo( id ){
-  console.log("Action doToggleTodo")
+  console.log("Action doToggleTodo");
+  
   return {
     type: TODO_TOGGLE,
     todo: { id }
@@ -106,12 +107,14 @@ const rootReducer = combineReducers( {
 
 const store = createStore( rootReducer );
 
-// //////////////
+// /////////////
 // view layer  /
-// ////////////
+// /////////////
 
 // components
-
+// in component we are sending our 
+// reducer -> todoState-> as todos
+// action -> doToggleTodo as onToggleTodo
 function TodoApp( { todos , onToggleTodo } ) {
   console.log(todos); 
   // [ {id: 0, name: "learn redux"}, {id: 1, name: "learn mobx"} ]
@@ -148,6 +151,7 @@ function TodoItem( { todo, onToggleTodo } ){
       {name}
       <button
         type="button"
+        // dipatching our action onToggleTodo with payload id on click
         onClick= { () => onToggleTodo( id ) }
         >
           { completed ? "Incomplete": "Complete" }
@@ -168,6 +172,7 @@ function mapStateToProps( state ){
   0: {id: 0, name: "learn redux"}
   1: {id: 1, name: "learn mobx"}
   */
+  //  taking todoState from state which we will send to component
   return {
     todos: state.todoState,
   }
@@ -177,11 +182,15 @@ function mapDispatchToProps( dispatch ){
   console.log("mapDispatchToProps ran")
 
   return {
-    // sending id to action doToggleTodo
+    // saving doToggleTodo action in key-> onToggleTodo which will be our HOC
     onToggleTodo: id => dispatch(doToggleTodo(id))
   }
 }
 
+// connect will connect 
+// reducer -> todoReducer, 
+// action -> doToggleTodo, 
+// component -> TodoApp
 const ConnectedTodoApp = connect( mapStateToProps, 
   mapDispatchToProps )( TodoApp );
 
