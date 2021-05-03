@@ -29,6 +29,7 @@ const todos = [
   { id: 0, name: 'learn redux' },
   { id: 1, name: 'learn mobx' }
 ];
+
 // reducer 1
 function todoReducer( state = todos, action){
   switch(action.type){
@@ -70,9 +71,9 @@ function applySetFilter( state, action ){
   return action.filter;
 };
 
-// //////////////////
-// action creators  /
-// //////////////////
+// /////////////////
+// action creators /
+// /////////////////
 function doAddTodo ( id, name ){
   return { 
     type: TODO_ADD,
@@ -102,25 +103,42 @@ const rootReducer = combineReducers( {
 
 const store = createStore( rootReducer );
 
-// //////////////
-// view layer  /
+// ////////////
+// view layer /
 // ////////////
 
 // components
 function TodoApp(){
+  console.log("TodoApp")
+  // ConnectedTodoList will trigger TodoList function
+  // but with reducer in it.
+  // If you return function TodoList you won't be passing reducer, try and see.
   return <ConnectedTodoList/>
 }
 
+// sending reducer to the component it is needed
 function TodoList( { todos } ){
+  console.log("TodoList")
+  console.log(todos)
+  /* 
+  [ {id: 0, name: "learn redux"}, {id: 1, name: "learn mobx"} ]
+  */
   return (
     <div>
-      {todos.map( todo => <ConnectedTodoItem key={todo.id} todo={todo}/> )}
+      {/* 
+        here we are passing another connect component ConnectedTodoItem ( trigger TodoItem function ) which has actions in it, you will be able to extract action when calling TodoItem function  
+      */}
+      { todos.map( todo => <ConnectedTodoItem key={todo.id} todo={todo}/> ) }
     </div>
   )
 }
 
+// now when TodoItem is triggered by Connect component ConnectedTodoItem
+// we will also be getting action onToggleTodo ( which is our doToggleTodo action ) 
+// which we are extracting here. 
 function TodoItem( { todo, onToggleTodo } ){
   const { name, id, completed } = todo;
+  console.log("TodoItem");
   return (
     <div>
       {name}
@@ -139,21 +157,29 @@ function mapStateToProps( state ){
     todos: state.todoState,
   }
 }
+
 function mapDispatchToProps( dispatch ){
   return {
     onToggleTodo: id => dispatch(doToggleTodo(id))
   }
 }
 
-// const ConnectedTodoApp = connect( mapStateToProps, mapDispatchToProps )( TodoApp );
+// ////////////
+// Connecting /
+// ////////////
 
+// Reducer and Component
+// creating connect component variables so that we can directly pass reducer
+// and action directly when and where needed.
 const ConnectedTodoList = connect( mapStateToProps )( TodoList );
+
+// Action and Component
 const ConnectedTodoItem = connect( null, mapDispatchToProps )( TodoItem );
 
-// ////////
+// /////////////
 ReactDOM.render(
     <Provider store = {store} >
-    <TodoApp/>
+      <TodoApp/>
     </Provider>,
   document.getElementById('root')
 );
